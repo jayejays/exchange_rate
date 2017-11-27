@@ -1,0 +1,23 @@
+{
+  "name": "exchange_rate",
+  "version": "1.0.0",
+  "description": "Uses an exchange rate API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jayejays/exchange_rate.git"
+  },
+  "author": "Jason Madrigal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jayejays/exchange_rate/issues"
+  },
+  "homepage": "https://github.com/jayejays/exchange_rate#readme",
+  "dependencies": {
+    "botbuilder": "^3.12.0",
+    "restify": "^6.3.4"
+  }
+}
