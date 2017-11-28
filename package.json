@@ -10,6 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/jayejays/exchange_rate.git"
   },
+  "engines": { "node" : ">=0.12" },
   "author": "Jason Madrigal",
   "license": "ISC",
   "bugs": {
