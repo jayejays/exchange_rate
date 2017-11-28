@@ -18,6 +18,8 @@
   "homepage": "https://github.com/jayejays/exchange_rate#readme",
   "dependencies": {
     "botbuilder": "^3.12.0",
+    "http-agent": "^0.1.2",
+    "open-exchange-rates": "^0.3.0",
     "restify": "^6.3.4"
   }
 }

@@ -1,4 +1,6 @@
 var builder = require('botbuilder');
+var currency = require('./CurrencyCard')
+var favouriteCurrency = require('./FavouriteCurrency');
 // Some sections have been omitted
 
 exports.startDialog = function (bot) {
@@ -29,15 +31,72 @@ exports.startDialog = function (bot) {
 
 //other bot dialogs in here
 
-    bot.dialog('WantCurrency', function (session, args) {
+    bot.dialog('DeleteFavourite', [
+        function (session, args, next) {
+            session.dialogData.args = args || {};
+            if (!session.conversationData["username"]) {
+                builder.Prompts.text(session, "Enter a username to setup your account.");
+            } else {
+                next(); // Skip if we already have this info.
+            }
+        },
+        function (session, results,next) {
+        if (!isAttachment(session)) {
+
+            session.send("You want to delete one of your favourite currencies.");
+
+            // Pulls out the food entity from the session if it exists
+            var CurrencyEntity = builder.EntityRecognizer.findEntity(session.dialogData.args.intent.entities, 'Currency');
+
+            // Checks if the for entity was found
+            if (CurrencyEntity) {
+                session.send('Deleting \'%s\'...', CurrencyEntity.entity);
+                favouriteCurrency.deleteFavouriteCurrency(session,session.conversationData['username'],CurrencyEntity.entity); //<--- CALLL WE WANT
+            } else {
+                session.send("No currency identified! Please try again");
+            }
+        }
+
+    }
+    ]).triggerAction({
+        matches: 'DeleteFavourite'
+
+    });
+
+   bot.dialog('GetFavouriteCurrency', [
+        function (session, args, next) {
+            session.dialogData.args = args || {};        
+            if (!session.conversationData["username"]) {
+                builder.Prompts.text(session, "Enter a username to setup your account.");                
+            } else {
+                next(); // Skip if we already have this info.
+            }
+        },
+        function (session, results, next) {
+            if (!isAttachment(session)) {
+
+                if (results.response) {
+                    session.conversationData["username"] = results.response;
+                }
+
+                session.send("Retrieving your favourite currencies");
+                favouriteCurrency.displayFavouriteCurrency(session, session.conversationData["username"]);  // <---- THIS LINE HERE IS WHAT WE NEED 
+            }
+        }
+    ]).triggerAction({
+        matches: 'GetFavouriteCurrency'
+    });
+
+   bot.dialog('WantCurrency', function (session, args) {
         if (!isAttachment(session)) {
             // Pulls out the currency entity from the session if it exists
-            var CurrencyEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'currency');
+            var CurrencyEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'Currency');
 
             // Checks if the currency entity was found
             if (CurrencyEntity) {
-                session.send('Looking for the exchange rates of the country %s...', foodEntity.entity);
+                session.send('Looking for the exchange rates of the country %s...', CurrencyEntity.entity);
                 // Insert logic here later
+                //currency.displayCurrencyCards(CurrencyEntity.entity, session);
             } else {
                 session.send("No currency identified! Please try again");
             }
@@ -47,7 +106,7 @@ exports.startDialog = function (bot) {
         matches: 'WantCurrency'
     });
 
-    bot.dialog('WelcomeIntent', function (session, args) {
+   bot.dialog('WelcomeIntent', function (session, args) {
         session.send("Welcome to this chat");
     }).triggerAction({
         matches: 'WelcomeIntent'
