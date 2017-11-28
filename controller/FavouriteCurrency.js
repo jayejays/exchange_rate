@@ -34,8 +34,8 @@ exports.deleteFavouriteCurrency = function deleteFavouriteCurrency(session,usern
 
 
     rest.getFavouriteCurrency(url,session, username,function(message,session,username){
-     var   allCurrencies = JSON.parse(message);
-
+     var allCurrencies = JSON.parse(message);
+     console.log("test");
         for(var i in allCurrencies) {
 
             if (allCurrencies[i].favouriteCurrency === favouriteCurrency && allCurrencies[i].username === username) {
@@ -51,4 +51,13 @@ exports.deleteFavouriteCurrency = function deleteFavouriteCurrency(session,usern
     });
 
 
+};
+
+function handleDeletedCurrencyResponse(body, session, username, favouriteCurrency){
+	console.log('Successfully deleted');
+}
+
+exports.sendFavouriteCurrency = function postFavouriteCurrency(session, username, favouriteCurrency){
+    var url = 'https://currencyratebot.azurewebsites.net/tables/easycurrencybot';
+    rest.postFavouriteCurrency(url, username, favouriteCurrency);
 };

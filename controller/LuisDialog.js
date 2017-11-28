@@ -1,6 +1,7 @@
 var builder = require('botbuilder');
 var currency = require('./CurrencyCard')
 var favouriteCurrency = require('./FavouriteCurrency');
+var customVision = require('./CustomVision');
 // Some sections have been omitted
 
 exports.startDialog = function (bot) {
@@ -11,25 +12,63 @@ exports.startDialog = function (bot) {
     bot.recognizer(recognizer);
 
     bot.dialog('GetExchange', function (session, args) {
-        if (!isAttachment(session)) {
+    	//session.send('Calculating exchange rates in..');
+    	//currency.displayCurrencyCards(session);  // <---- THIS LINE HERE IS WHAT WE NEED 
 
-            // Pulls out the currency entity from the session if it exists
-            var CurrencyEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'Currency');
+         if (!isAttachment(session)) {
 
-            // Checks if the for entity was found
-            if (CurrencyEntity) {
-                session.send('Calculating exchange rate in %s...', CurrencyEntity.entity);
-               // Here you would call a function to get the exchange rate information
+             // Pulls out the currency entity from the session if it exists
 
-            } else {
-                session.send("No exchange rate identified! Please try again");
-            }
-        }
+             var CurrencyEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'Currency');
+
+             // Checks if the for entity was found
+             if (CurrencyEntity) {
+                 session.send('Calculating exchange rate in %s...', CurrencyEntity.entity);
+                 currency.displayCurrencyCards(session);  // <---- THIS LINE HERE IS WHAT WE NEED 
+                // Here you would call a function to get the exchange rate information
+
+             } else {
+                 session.send("No exchange rate identified! Please try again");
+             }
+         }
     }).triggerAction({
         matches: 'GetExchange'
     });
 
 //other bot dialogs in here
+
+    bot.dialog('LookForFavourite', [
+        function (session, args, next) {
+            session.dialogData.args = args || {};        
+            if (!session.conversationData["username"]) {
+                builder.Prompts.text(session, "Enter a username to setup your account.");                
+            } else {
+                next(); // Skip if we already have this info.
+            }
+        },
+        function (session, results, next) {
+            if (!isAttachment(session)) {
+
+                if (results.response) {
+                    session.conversationData["username"] = results.response;
+                }
+                // Pulls out the food entity from the session if it exists
+                var CurrencyEntity = builder.EntityRecognizer.findEntity(session.dialogData.args.intent.entities, 'Currency');
+    
+                // Checks if the food entity was found
+                if (CurrencyEntity) {
+                    session.send('Thanks for telling me that \'%s\' is your favourite currency', CurrencyEntity.entity);
+                    favouriteCurrency.sendFavouriteCurrency(session, session.conversationData["username"], CurrencyEntity.entity); // <-- LINE WE WANT
+    
+                } else {
+                    session.send("No currency identified!!!");
+                }
+            }
+        }
+    ]).triggerAction({
+        matches: 'LookForFavourite'
+    });
+
 
     bot.dialog('DeleteFavourite', [
         function (session, args, next) {
@@ -41,13 +80,15 @@ exports.startDialog = function (bot) {
             }
         },
         function (session, results,next) {
-        if (!isAttachment(session)) {
-
+        //if (!isAttachment(session)) {
+        if (results.response){
+        	session.conversationData["username"] = results.response
+        }
             session.send("You want to delete one of your favourite currencies.");
 
-            // Pulls out the food entity from the session if it exists
+            // Pulls out the currency entity from the session if it exists
             var CurrencyEntity = builder.EntityRecognizer.findEntity(session.dialogData.args.intent.entities, 'Currency');
-
+            
             // Checks if the for entity was found
             if (CurrencyEntity) {
                 session.send('Deleting \'%s\'...', CurrencyEntity.entity);
@@ -57,10 +98,9 @@ exports.startDialog = function (bot) {
             }
         }
 
-    }
+    
     ]).triggerAction({
         matches: 'DeleteFavourite'
-
     });
 
    bot.dialog('GetFavouriteCurrency', [
@@ -88,19 +128,24 @@ exports.startDialog = function (bot) {
     });
 
    bot.dialog('WantCurrency', function (session, args) {
+   		// session.send('Fetching the exchange rates...');
+   		// currency.displayCurrencyCards(session);
+
+
         if (!isAttachment(session)) {
             // Pulls out the currency entity from the session if it exists
-            var CurrencyEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'Currency');
+            //var CurrencyEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'Currency');
 
             // Checks if the currency entity was found
-            if (CurrencyEntity) {
-                session.send('Looking for the exchange rates of the country %s...', CurrencyEntity.entity);
+           // if (CurrencyEntity) {
+                session.send('Okay! I am fetching the exchange rates...');
                 // Insert logic here later
                 //currency.displayCurrencyCards(CurrencyEntity.entity, session);
-            } else {
-                session.send("No currency identified! Please try again");
+                currency.displayCurrencyCards(session);
+            //} else {
+             //   session.send("No currency identified! Please try again");
             }
-        }
+        
 
     }).triggerAction({
         matches: 'WantCurrency'
@@ -118,8 +163,9 @@ exports.startDialog = function (bot) {
 function isAttachment(session) { 
     var msg = session.message.text;
     if ((session.message.attachments && session.message.attachments.length > 0) || msg.includes("http")) {
-        
-        //call custom vision here later
+        //call custom vision
+        customVision.retreiveMessage(session);
+
         return true;
     }
     else {

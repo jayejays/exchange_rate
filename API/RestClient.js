@@ -1,12 +1,15 @@
 var request = require('request');
 //API below
-exports.getCurrencyData = function getData(url, session, CurrencyName, callback){
 
-    request.get(url, function(err,res,body){
+
+exports.getCurrencyData = function getData(url,session,callback){
+
+    request.get(url,function(err,res,body){
         if(err){
             console.log(err);
         }else {
-            callback(body, CurrencyName, session);
+        	//console.log(body);
+            callback(body,session);
         }
     });
 };
@@ -44,4 +47,28 @@ exports.deleteFavouriteCurrency = function deleteData(url,session, username ,fav
         }
     })
 
+};
+
+exports.postFavouriteCurrency = function getData(url, username, favouriteCurrency){
+    var options = {
+        url: url,
+        method: 'POST',
+        headers: {
+            'ZUMO-API-VERSION': '2.0.0',
+            'Content-Type':'application/json'
+        },
+        json: {
+            "username" : username,
+            "favouriteCurrency" : favouriteCurrency
+        }
+      };
+      
+      request(options, function (error, response, body) {
+        if (!error && response.statusCode === 200) {
+            console.log(body);
+        }
+        else{
+            console.log(error);
+        }
+      });
 };
