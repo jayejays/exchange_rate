@@ -151,9 +151,26 @@ exports.startDialog = function (bot) {
         matches: 'WantCurrency'
     });
 
-   bot.dialog('WelcomeIntent', function (session, args) {
+   bot.dialog('WelcomeIntent', [
+   	function (session, next) {
         session.send("Welcome to this chat");
-    }).triggerAction({
+
+        if(!session.conversationData["username"]){
+        	builder.Prompts.text(session, "whats ur username");
+        } else {
+        	next();
+        }
+},
+    function (session, results, next){
+    	if (results.response) {
+    		session.conversationData["username"] = results.response;
+    		session.send(`hello ${results.response}!`);
+    	}
+    
+
+}
+
+    ]).triggerAction({
         matches: 'WelcomeIntent'
     });
 
