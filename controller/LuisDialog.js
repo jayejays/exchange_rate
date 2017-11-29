@@ -153,10 +153,10 @@ exports.startDialog = function (bot) {
 
    bot.dialog('WelcomeIntent', [
    	function (session, next) {
-        session.send("Welcome to this chat");
+        session.send("Welcome to this live chat!");
 
         if(!session.conversationData["username"]){
-        	builder.Prompts.text(session, "whats ur username");
+        	builder.Prompts.text(session, "Before we continue, what is your name?");
         } else {
         	next();
         }
@@ -164,7 +164,7 @@ exports.startDialog = function (bot) {
     function (session, results, next){
     	if (results.response) {
     		session.conversationData["username"] = results.response;
-    		session.send(`hello ${results.response}!`);
+    		session.send(`Hello there, ${results.response}!`);
     	}
     
 
