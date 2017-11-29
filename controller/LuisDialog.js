@@ -154,7 +154,7 @@ exports.startDialog = function (bot) {
    bot.dialog('WelcomeIntent', [
    	function (session, next) {
         session.send("Welcome to this live chat!");
-
+        session.send("Would you like to use voice control for easier accessiblity for disabled users?");
         if(!session.conversationData["username"]){
         	builder.Prompts.text(session, "Before we continue, what is your name?");
         } else {
